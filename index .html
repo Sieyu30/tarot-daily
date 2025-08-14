@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>每日占卜｜神籤塔羅</title>
+  <meta name="description" content="輸入姓名與生日，今天只抽一次。中式廟籤 × 塔羅的每日行動建議。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg1:#0c0a0a; --bg2:#1b1412; --ink:#f5efe6; --muted:#c9b9a7; --brand:#c71f2d; --gold:#d6b36b; --card:#1c1613
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:radial-gradient(1200px 600px at 70% -10%, #2b1f1a22 10%, transparent),
+                       radial-gradient(900px 600px at -20% 120%, #3a2b2333 10%, transparent),
+                       linear-gradient(180deg,var(--bg1),var(--bg2));
+         color:var(--ink);font:16px/1.65 "Noto Sans TC", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, "PingFang TC", "Heiti TC", sans-serif;}
+    .wrap{max-width:860px;margin:0 auto;padding:24px}
+    header{display:flex;align-items:center;justify-content:space-between;padding:8px 0}
+    h1{margin:0;font:700 28px/1.2 "Noto Serif TC", serif;letter-spacing:1px;color:var(--ink)}
+    .muted{color:var(--muted)}
+
+    /* mystic dust */
+    .dust{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+    .dot{position:absolute;width:2px;height:2px;background:radial-gradient(circle,var(--gold),transparent 70%);filter:blur(.3px);opacity:.5;animation:float 12s linear infinite}
+    @keyframes float{from{transform:translateY(100vh) translateX(0)} to{transform:translateY(-10vh) translateX(40px)}}
+
+    .panel{position:relative;z-index:1;background:linear-gradient(180deg,#211916aa,#171312aa);border:1px solid #3b2d24;border-radius:18px;box-shadow:0 10px 30px #0008, inset 0 0 60px #0005;backdrop-filter:blur(2px)}
+    .p-in{padding:20px}
+
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    input{flex:1;min-width:160px;padding:12px 14px;border:1px solid #3b2d24;border-radius:12px;background:#110d0b;color:var(--ink)}
+    .btn{display:inline-block;padding:12px 18px;border-radius:12px;border:1px solid #4b2b27;background:linear-gradient(180deg,#2a1715,#1b1211);color:#f8e8cc;font-weight:700;cursor:pointer;letter-spacing:.5px}
+    .btn:hover{filter:brightness(1.08)}
+    .hint{margin:4px 0 0;font-size:13px}
+
+    /* shrine box + card */
+    .stage{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+    .box{position:relative;height:240px;border:1px solid #3b2d24;border-radius:16px;background:radial-gradient(120px 80px at 50% 0,#49261f77,transparent 80%),linear-gradient(180deg,#2a1815,#1a1210);box-shadow:inset 0 10px 30px #000a,0 10px 40px #0006}
+    .box:before{content:"";position:absolute;inset:0;border-radius:16px;box-shadow:inset 0 0 0 2px #6a3f32aa, inset 0 0 30px #000}
+    .incense{position:absolute;left:24px;bottom:24px;width:10px;height:80px;background:linear-gradient(180deg,#6f3b30,#2b1715);border-radius:6px}
+    .smoke{position:absolute;left:28px;bottom:104px;width:1px;height:1px;filter:blur(10px);}
+    .s1,.s2,.s3{position:absolute;width:120px;height:120px;background:radial-gradient(closest-side,#ffffff22,transparent 70%);border-radius:50%;animation:smk 8s ease-in-out infinite;}
+    .s2{left:20px;animation-duration:10s;animation-delay:1.2s}
+    .s3{left:-10px;animation-duration:12s;animation-delay:2.1s}
+    @keyframes smk{0%{transform:translate(0,0) scale(.8);opacity:.2} 50%{transform:translate(10px,-30px) scale(1);opacity:.35} 100%{transform:translate(0,-60px) scale(.8);opacity:.1}}
+
+    .draw{position:absolute;right:24px;bottom:24px}
+
+    .card{width:260px;height:380px;perspective:1200px;margin:auto}
+    .card-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .9s cubic-bezier(.2,.7,.2,1)}
+    .card.flip .card-inner{transform:rotateY(180deg)}
+    .card-face{position:absolute;inset:0;border-radius:18px;backface-visibility:hidden;border:1px solid #574134;box-shadow:0 20px 60px #0009,inset 0 0 0 2px #8a6b42aa}
+    .card-back{background:repeating-linear-gradient(45deg,#2b1a17,#2b1a17 8px,#37231e 8px,#37231e 16px);display:grid;place-items:center}
+    .sigil{width:120px;height:120px;border:2px solid var(--gold);border-radius:50%;position:relative;box-shadow:0 0 30px #d6b36b33}
+    .sigil:before,.sigil:after{content:"";position:absolute;inset:12px;border:1px dashed var(--gold);border-radius:50%}
+    .sigil:after{inset:26px;border-style:solid;border-width:1px 0 0 1px;transform:rotate(45deg)}
+    .card-front{background:linear-gradient(180deg,#241a17,#17110f);transform:rotateY(180deg);display:flex;flex-direction:column}
+    .c-head{padding:14px 14px 6px;border-bottom:1px solid #3b2d24;color:var(--gold);font:600 18px/1.2 "Noto Serif TC",serif}
+    .c-body{padding:14px;overflow:auto}
+    .kv{display:inline-block;margin:0 6px 6px 0;padding:4px 10px;border-radius:999px;background:#2a1c17;border:1px solid #5b463a;font-size:13px;color:#e9d9bb}
+    ol{padding-left:18px;margin:8px 0}
+    em{color:#e8d7b0}
+
+    .result{margin-top:18px}
+    .sep{height:1px;background:#3a2b23;margin:16px 0}
+    .tag{display:inline-block;padding:6px 10px;border:1px dashed #6b5646;border-radius:999px;font-size:13px;color:#e0d1be;margin-right:6px}
+    .footer{margin:18px 0;color:var(--muted);font-size:14px}
+
+    .glow{animation:glow 1.8s ease-in-out}
+    @keyframes glow{0%{box-shadow:0 0 0px #d6b36b00}50%{box-shadow:0 0 40px #d6b36b55}100%{box-shadow:0 0 0px #d6b36b00}}
+
+    .fade-up{opacity:0;transform:translateY(8px);animation:fu .7s ease forwards}
+    @keyframes fu{to{opacity:1;transform:none}}
+  </style>
+</head>
+<body>
+  <div class="dust" id="dust"></div>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>每日占卜</h1>
+        <div class="muted">中式廟籤 × 塔羅｜輸入姓名與生日，今天只抽一次</div>
+      </div>
+    </header>
+
+    <section class="panel p-in" style="margin-top:14px">
+      <div class="row">
+        <input id="name" placeholder="你的名字" required />
+        <input id="bday" type="date" required />
+        <button class="btn" id="drawBtn">抽一籤</button>
+        <button class="btn" id="shareBtn" type="button" title="複製分享連結">分享</button>
+      </div>
+      <div class="hint muted">結果由「姓名 + 生日 + 今日日期」產生；今天固定一次。</div>
+    </section>
+
+    <section class="panel p-in" style="margin-top:14px">
+      <div class="stage">
+        <div class="box">
+          <div class="incense"></div>
+          <div class="smoke">
+            <div class="s1"></div>
+            <div class="s2"></div>
+            <div class="s3"></div>
+          </div>
+          <div class="draw">
+            <button class="btn" id="revealBtn" type="button">啟示</button>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:center">
+          <div class="card" id="card">
+            <div class="card-inner">
+              <div class="card-face card-back"><div class="sigil"></div></div>
+              <div class="card-face card-front">
+                <div class="c-head" id="cHead">今日之牌</div>
+                <div class="c-body" id="cBody"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="result" id="result"></div>
+      <div class="sep"></div>
+      <div>
+        <span class="tag">翻牌前有動畫</span>
+        <span class="tag">神祕感介面</span>
+        <span class="tag">生活化解讀</span>
+      </div>
+      <div class="footer">※ 想重抽，請隔天或換名字。請把占卜當成「自我反思與行動提示」，避免用於醫療、法律或投資承諾。</div>
+    </section>
+  </div>
+
+<script>
+// ---------- 粒子星塵 ----------
+(function makeDust(){
+  const box = document.getElementById('dust');
+  const n = 120; // 粒子數
+  for(let i=0;i<n;i++){
+    const d = document.createElement('div'); d.className='dot';
+    d.style.left = Math.random()*100+'%';
+    d.style.bottom = (-10+Math.random()*110)+'vh';
+    d.style.animationDelay = (Math.random()*12)+'s';
+    d.style.opacity = .2 + Math.random()*.6;
+    box.appendChild(d);
+  }
+})();
+
+const $ = sel=>document.querySelector(sel);
+const out = $('#result');
+const cHead = $('#cHead');
+const cBody = $('#cBody');
+const cardEl = $('#card');
+const drawBtn = $('#drawBtn');
+const revealBtn = $('#revealBtn');
+
+// ---------- 工具：hash / RNG ----------
+async function sha256(s){
+  const buf = new TextEncoder().encode(s);
+  const h = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+function rng(seed){ // xorshift32
+  let x = parseInt(seed.slice(0,8),16) || 123456789;
+  return ()=>{x ^= x<<13; x ^= x>>>17; x ^= x<<5; return (x>>>0)/4294967296}
+}
+
+// ---------- 大阿爾克那（22 張，精寫） ----------
+const MAJOR = [
+  {name:"愚者 The Fool",u:{k:"起點/勇氣/嘗試",m:"今天適合『先做後想』的小實驗。別怕犯錯，錯誤會替你省下更大的彎路。",a:["列 1 件想嘗試的事","設定 30 分鐘時限","做完才評分"],b:"一步之差，步步生花。"},r:{k:"莽撞/猶疑/走神",m:"想衝卻心裡打鼓。先把風險寫下來，再縮小規模測一次。",a:["寫下 3 個風險","把計畫縮成 10%","請一位朋友幫檢視"],b:"慢一步，也是進度。"}},
+  {name:"魔術師 The Magician",u:{k:"專注/資源整合/顯化",m:"把手邊資源拉一條線：人脈、時間、工具。一旦串起來，答案就會浮現。",a:["列出 3 項可用資源","打一通關鍵電話","做一個最小雛形"],b:"所思所見，所見所成。"},r:{k:"分散/自我懷疑/空轉",m:"工具很多、輸出很少。收斂到一個交付，今天只把它做完。",a:["選 1 個工具到底","清掉 2 件干擾","產出 1 份可交付"],b:"少即是能量。"}},
+  {name:"女祭司 The High Priestess",u:{k:"直覺/沉靜/觀察",m:"訊息已在你心裡。先觀後動，把敏感度用在選擇而不是焦慮。",a:["留 10 分鐘安靜","寫下最在意的 1 題","今天不急著回覆"],b:"靜能見深。"},r:{k:"遲疑/逃避/資訊遮蔽",m:"過度內耗讓你錯過時機。用事實表替代腦補。",a:["列事實 vs 推測","補 1 個確鑿數據","做 1 個小回合測試"],b:"看清，才安心。"}},
+  {name:"女皇 The Empress",u:{k:"滋養/關係/美感",m:"把注意力放回身體與關係，產能在被好好照顧後自然升起。",a:["好好吃一餐","整理桌面 10 分鐘","表達一次感謝"],b:"被照顧的，才長大。"},r:{k:"過度付出/失衡/拖延美感",m:"照顧別人太多、照顧自己太少。先把界線立起來。",a:["拒絕 1 件額外請託","做 15 分鐘自我保養","把美學細節做對 1 處"],b:"界線，是溫柔的形狀。"}},
+  {name:"皇帝 The Emperor",u:{k:"結構/掌控/規劃",m:"把混亂變成流程。今天定規則、畫邊界，效率就會回來。",a:["定 3 條團隊規範","規劃 1 週路線圖","回顧 KPI"],b:"秩序帶來自由。"},r:{k:"僵硬/權威過度/控制",m:"你不必事事親自盯。授權能讓系統更強。",a:["交辦 1 件事","定檢查點而非微管","刪 1 個多餘規則"],b:"放手，也是力量。"}},
+  {name:"教皇 The Hierophant",u:{k:"知識/傳承/制度",m:"按規則走會更快。向前人請益，站在肩膀上看更遠。",a:["請教 1 位前輩","閱讀 20 分鐘標準文件","完善 1 份SOP"],b:"學過的，才算自己的。"},r:{k:"教條/保守/不合時宜",m:"規則不是枷鎖。更新一條老規矩，讓它服務現在。",a:["找出 1 條過時流程","提出替代方案","做 A/B 比較"],b:"活的章程，才有用。"}},
+  {name:"戀人 The Lovers",u:{k:"選擇/連結/價值一致",m:"當價值一致，選擇就簡單。先問：這件事是否更靠近我想成為的人？",a:["寫下 1 句價值主張","跟利害關係人對齊","說一次真心話"],b:"對的人，讓路短一半。"},r:{k:"分心/曖昧/價值衝突",m:"關係卡在模糊裡。把期待說清楚，模糊才會散去。",a:["列雙方期待","定下最小承諾","暫停一件不一致的合作"],b:"清楚，是最好的溫柔。"}},
+  {name:"戰車 The Chariot",u:{k:"行動/決斷/推進",m:"別再想，開動吧。把阻力視為路面顛簸，握緊方向就好。",a:["啟動 1 項卡住的任務","砍掉 2 個不必要步驟","設定截止時間"],b:"路在輪下生。"},r:{k:"衝過頭/失控/方向偏移",m:"速度不是重點，方向才是。先停車，調整羅盤。",a:["今天改為慢速日","對齊 1 句目標北極星","刪除 1 個虛假緊急"],b:"慢，是為了準。"}},
+  {name:"力量 Strength",u:{k:"溫柔的力量/自律/復原",m:"以溫柔制衡野性。你能把情緒化為推進力。",a:["做 10 分鐘呼吸","今天不熬夜","完成 1 個健康小目標"],b:"柔能勝剛。"},r:{k:"自我消耗/意志鬆動/過度逼迫",m:"逼太緊會斷。把目標切小，讓自己回到手感。",a:["把目標拆成 3 步","給自己 1 次休息","說一句鼓勵自己的話"],b:"善待自己，才有長跑。"}},
+  {name:"隱者 The Hermit",u:{k:"獨處/洞見/內在師傅",m:"關掉外音，才能聽見內心。今天為思考留白。",a:["斷網 30 分鐘","寫 1 頁反思","為明天留 1 個洞見行動"],b:"燈在心裡。"},r:{k:"孤立/拒絕幫助/過度抽離",m:"不是一個人撐。共享你的進度，得到回饋會更快。",a:["發 1 則進度更新","約 1 次對談","提出 1 個具體請求"],b:"被看見，會更穩。"}},
+  {name:"命運之輪 Wheel of Fortune",u:{k:"機運/循環/轉折",m:"風向在變。順勢而為，搭上順風車。",a:["列出 1 個趨勢機會","調整 1 個策略","把下注分散"],b:"把握當下的風。"},r:{k:"卡關/抗拒改變/不順",m:"逆風期要縮風帆。保守一些，先守住底盤。",a:["減少 1 個高風險行動","補 1 個備援方案","設定最壞情境"],b:"守住，等風轉。"}},
+  {name:"正義 Justice",u:{k:"公平/因果/取捨",m:"把情緒拉開，回到事實與證據。公正會替你說話。",a:["列事證清單","明確利弊","做一個可被稽核的決策"],b:"秤會回到平。"},r:{k:"偏見/失衡/責任不清",m:"別把錯都丟出去。把可控的百分比收回來。",a:["承擔自己那一份","補齊 1 個缺證據點","訂 1 條公平規則"],b:"公平，從我開始。"}},
+  {name:"吊人 The Hanged Man",u:{k:"換位/等待/犧牲",m:"倒過來看，路就出現了。暫停不是退步，是換角度。",a:["站在對方立場寫 5 句","暫緩 1 個非必要決定","交換 1 次角色"],b:"換一眼，見一海。"},r:{k:"被動/自我犧牲過量/內疚",m:"你不必一直當那個成全別人的人。收回時間與能量。",a:["取消 1 件無效付出","把界線寫下來","優先處理自己的事"],b:"心向內，才有外。"}},
+  {name:"死神 Death",u:{k:"結束/重生/清理",m:"該結束的就讓它結束。空出來，新的才有位子。",a:["丟 10 樣無用物","關掉 1 個過期專案","對自己宣布『畢業』"],b:"告別，是開始。"},r:{k:"抗拒結束/糾纏/拖延",m:"你知道答案，只差一個了斷。善後，然後前進。",a:["列出善後清單","通知相關人","設定新起點日期"],b:"了斷，才輕盈。"}},
+  {name:"節制 Temperance",u:{k:"平衡/調和/漸進",m:"別急著極端。用 60 分打 70 分的穩。",a:["把步伐定為中速","混合兩個方案","設定每日微進度"],b:"穩，才走遠。"},r:{k:"失衡/忽快忽慢/情緒擺盪",m:"像溫度計在抖。調整節奏到可持續。",a:["固定起床與收工時間","餐食規律","把情緒寫下再回覆"],b:"節奏，是實力。"}},
+  {name:"惡魔 The Devil",u:{k:"慾望/束縛看見/覺察",m:"看清自己被什麼拴住，是解鎖的第一步。",a:["記錄一個衝動觸發","替代 1 個壞習慣","把『想要』與『需要』分開"],b:"看見，才自由。"},r:{k:"成癮/控制/自我設限",m:"別再跟自責拔河。找人一起戒，會比較容易。",a:["公布你的里程碑","移除 1 個誘惑環境","獎勵健康替代"],b:"一起，才斷。"}},
+  {name:"高塔 The Tower",u:{k:"突變/真相/清場",m:"動盪讓真相浮現。與其挽留，不如順勢重建。",a:["盤點可救與該斷","保護關鍵資產","設臨時應變流程"],b:"倒下，為了更穩。"},r:{k:"延遲崩塌/假修補/否認",m:"補丁貼太多。勇敢拆掉重做，會更省。",a:["停止無效補救","一次說清問題根","制定重建時程"],b:"拆，才有新基礎。"}},
+  {name:"星星 The Star",u:{k:"希望/療癒/遠方目標",m:"把目光放遠一點，細節自然排列到位。",a:["寫下你的北極星","今天做 1 件與長遠相關的小事","補水與睡眠"],b:"抬頭，就有光。"},r:{k:"失望/信心不足/方向感弱",m:"燈不是沒了，只是被霧擋住。先把霧散掉。",a:["清理工作區","完成 1 件快速小勝","回顧曾經的成功紀錄"],b:"小勝，喚回光。"}},
+  {name:"月亮 The Moon",u:{k:"潛意識/想像/敏感",m:"直覺在提醒你：資料還不夠。先查證，再決定。",a:["列出 3 個未知","做 1 次用戶訪談","今晚早睡"],b:"明天，會更清楚。"},r:{k:"迷惘/誤解/恐懼放大",m:"腦內電影太吵。把擔心寫成條列，它就小了。",a:["寫下最糟情境","對應 1 個預案","別在深夜做重大決策"],b:"把影子照亮。"}},
+  {name:"太陽 The Sun",u:{k:"成功/清晰/能量",m:"今天是主場。把困難當舞台，秀一個漂亮的解法。",a:["公開展示成果","主動幫助 1 個人","運動 20 分鐘"],b:"你，就是好天氣。"},r:{k:"虛火/過度樂觀/忽略細節",m:"陽光太烈會曬傷。收好細節，別被粗心絆腳。",a:["做一次檢查清單","請別人複核","留白 30 分鐘休息"],b:"光也要有邊界。"}},
+  {name:"審判 Judgement",u:{k:"覺醒/召喚/總結",m:"一個階段走到尾聲。回顧、對齊、重新出發。",a:["寫 5 句學到的事","打 1 通和解電話","宣告下一步"],b:"聽見召喚，向前。"},r:{k:"自責/遲滯/害怕評價",m:"標準太嚴讓你不敢動。先交，再改。",a:["交付 1 個 80 分版本","收 2 個回饋","排改版時間"],b:"行動，勝過完美。"}},
+  {name:"世界 The World",u:{k:"完成/整合/里程碑",m:"拼圖到最後一片。把成果包裝成可分享的版本。",a:["整理成案例或作品集","寫 1 篇里程碑貼文","規劃下個循環"],b:"一圈又一圈，越來越大。"},r:{k:"未竟/散亂/收尾焦慮",m:"就差臨門一腳。收尾清單排程，一次結一件。",a:["列出收尾清單","每日清 3 件","設定完工儀式"],b:"好好結束，就是完成。"}},
+];
+
+// ---------- 小阿爾克那（演算法生成：確保 78 張齊全，語氣生活化） ----------
+const SUITS = [
+  {en:'Wands', zh:'權杖', theme:{u:['行動','創意','推進'], r:['分心','拖延','火氣']}},
+  {en:'Cups', zh:'聖杯', theme:{u:['情感','連結','療癒'], r:['情緒化','誤解','敏感']}},
+  {en:'Swords', zh:'寶劍', theme:{u:['思考','決斷','溝通'], r:['焦慮','衝突','過度理性']}},
+  {en:'Pentacles', zh:'錢幣', theme:{u:['實務','資源','穩定'], r:['貪多','停滯','計畫不足']}}
+];
+const RANKS = [
+  {en:'Ace', zh:'首牌', biasU:'新的開始', biasR:'啟動不順'},
+  {en:'Two', zh:'二', biasU:'協作與取捨', biasR:'猶豫與拉扯'},
+  {en:'Three', zh:'三', biasU:'小小進展', biasR:'節奏打結'},
+  {en:'Four', zh:'四', biasU:'穩住結構', biasR:'過度保守'},
+  {en:'Five', zh:'五', biasU:'面對問題', biasR:'在負面裡打轉'},
+  {en:'Six', zh:'六', biasU:'共享與回流', biasR:'失衡與欠缺'},
+  {en:'Seven', zh:'七', biasU:'檢視與耐心', biasR:'不耐與躁進'},
+  {en:'Eight', zh:'八', biasU:'練習與效率', biasR:'效率低落'},
+  {en:'Nine', zh:'九', biasU:'守住與累積', biasR:'疲累與過擔'},
+  {en:'Ten', zh:'十', biasU:'完成與承擔', biasR:'超載與壓力'},
+  {en:'Page', zh:'侍者', biasU:'學習與訊息', biasR:'幼稚與分心'},
+  {en:'Knight', zh:'騎士', biasU:'推進與行動', biasR:'魯莽與失速'},
+  {en:'Queen', zh:'皇后', biasU:'內在成熟', biasR:'情緒化或控制'},
+  {en:'King', zh:'國王', biasU:'掌舵與決策', biasR:'僵化與獨斷'}
+];
+
+function makeMinorCard(suit, rank){
+  const name = `${suit.zh}${rank.zh}` + ` ${rank.en} of ${suit.en}`;
+  const kwU = [rank.biasU, ...suit.theme.u].slice(0,3).join('/');
+  const kwR = [rank.biasR, ...suit.theme.r].slice(0,3).join('/');
+  const msg = (upr, r)=>{
+    const tipA = upr? '把注意力放回可控的小步驟，今天只做能讓事情往前的 1 件。'
+                    : '先別硬衝，縮小目標到不會抗拒的尺寸，穩住再推。';
+    const tipB = upr? '找一個可信的人聊 10 分鐘，對齊期待就不容易跑偏。'
+                    : '把擔心寫下來，替每一條配一個最小行動，焦慮會變小。';
+    const suitHint = {
+      'Wands': upr? '行動勝過思考，手腳動起來。':'先降火，別為了逞強壞了節奏。',
+      'Cups' : upr? '真誠說感受，關係會更順。':'先安頓情緒，再去談結果。',
+      'Swords': upr? '用事實與證據說話。':'先停下爭辯，把問題寫清楚。',
+      'Pentacles': upr? '重視可交付與現實資源。':'確認投入與回報是否失衡。'
+    }[suit.en];
+    return `${r} ${suitHint} ${upr?tipA:tipB}`
+  }
+  const actU = [
+    '寫下今天唯一目標',
+    '花 20 分鐘做雛形',
+    '打一通關鍵電話'
+  ];
+  const actR = [
+    '把目標砍成 1/3',
+    '取消 1 件無效差事',
+    '補 1 個缺的資訊'
+  ];
+  const blessU = '穩穩做，小勝即勝';
+  const blessR = '慢一點，會更穩';
+  return {
+    name,
+    u:{k:kwU, m:msg(true,'今天有前進空間。'), a:actU, b:blessU},
+    r:{k:kwR, m:msg(false,'今天先調整步伐。'), a:actR, b:blessR}
+  }
+}
+
+const MINOR = [];
+for(const suit of SUITS){ for(const rank of RANKS){ MINOR.push(makeMinorCard(suit, rank)); } }
+
+const FULL_DECK = [...MAJOR, ...MINOR]; // 78 張
+
+// ---------- 抽牌：姓名 + 生日 + 今日 ----------
+async function pickCard(name,bday){
+  const today = new Date().toISOString().slice(0,10);
+  const seed = await sha256(`${name}|${bday}|${today}`);
+  const r = rng(seed);
+  const idx = Math.floor(r()*FULL_DECK.length);
+  const upright = Math.floor(r()*2)===0;
+  const card = FULL_DECK[idx];
+  const face = upright ? card.u : card.r;
+  return {title: card.name + (upright?'（正位）':'（逆位）'), ...face};
+}
+
+// ---------- 互動：抽牌前動效 → 翻面 → 出籤文 ----------
+async function doDraw(){
+  const name = $('#name').value.trim();
+  const bday = $('#bday').value;
+  if(!name||!bday){ alert('請先輸入姓名與生日'); return }
+
+  // 卡背閃爍 + 震動
+  cardEl.classList.remove('flip');
+  cardEl.classList.add('glow');
+  await new Promise(r=>setTimeout(r,700));
+
+  // 決定牌
+  const res = await pickCard(name,bday);
+
+  // 翻面
+  cardEl.classList.add('flip');
+  await new Promise(r=>setTimeout(r,900));
+
+  // 填內容
+  cHead.textContent = res.title;
+  cBody.innerHTML = `
+    <div>${res.k.split('/').map(s=>`<span class=kv>${s}</span>`).join('')}</div>
+    <p class="fade-up" style="animation-delay:.05s">${res.m}</p>
+    <ol class="fade-up" style="animation-delay:.12s">${res.a.map(x=>`<li>${x}</li>`).join('')}</ol>
+    <p class="fade-up" style="animation-delay:.18s"><em>${res.b}</em></p>
+  `;
+
+  // 下方摘要
+  out.innerHTML = `
+    <div class="muted">※ 本結果每天固定一次；想重抽，請改名或隔天再來。</div>
+  `;
+
+  // URL 參數（方便分享）
+  const url = new URL(location.href);
+  url.searchParams.set('name', name);
+  url.searchParams.set('b', bday);
+  history.replaceState(null,'',url.toString());
+}
+
+drawBtn.addEventListener('click', doDraw);
+revealBtn.addEventListener('click', doDraw);
+
+// 可選：從 URL 參數自動帶入
+(function initFromURL(){
+  const u = new URL(location.href);
+  const name = u.searchParams.get('name')||'';
+  const b = u.searchParams.get('b')||'';
+  if(name && b){ $('#name').value = name; $('#bday').value = b; }
+})();
+
+// 分享：複製當日連結
+$('#shareBtn').addEventListener('click', async ()=>{
+  const name = $('#name').value.trim();
+  const bday = $('#bday').value;
+  const url = new URL(location.href);
+  if(name && bday){ url.searchParams.set('name', name); url.searchParams.set('b', bday); }
+  try{ await navigator.clipboard.writeText(url.toString()); alert('分享連結已複製'); }catch(e){ alert(url.toString()); }
+});
+</script>
+</body>
+</html>
